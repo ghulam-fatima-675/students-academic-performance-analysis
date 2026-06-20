@@ -1,0 +1,225 @@
+---
+title: "Factors Affecting Students' Academic Performance"
+author:
+- 'Name: Ghulam Fatima'
+- 'Roll No: BS-STATS-F25-R-36'
+- 'Class: BS Statistics'
+- 'Submitted to: Mam Wajiha Nasir'
+date: '2026-06-11'
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## <u>Question 1:</u> Import Dataset and Display First Six Observations
+
+```{r, comment = ""}
+student_data <- read.csv("student_performance.csv")
+
+knitr::kable(head(student_data))
+```
+
+**Interpretation:** The dataset is successfully loaded, and the head() function displays the first 6 rows to verify that all variable columns are correctly structured.
+
+---
+
+## <u>Question 2:</u> Determine Observations, Variables, and Names
+
+```{r, comment = ""}
+dim(student_data)
+
+names(student_data)
+```
+
+**Interpretation:** The dataset contains exactly 50 student observations (rows) and 7 unique variables (columns) representing their academic metrics.
+
+---
+
+## <u>Question 3:</u>Descriptive Statistics of Quantitative Variables
+
+```{r, comment = ""}
+quantitative_data <- student_data[, 2:7]
+
+knitr::kable(summary(quantitative_data))
+knitr::kable(sapply(quantitative_data, sd), col.names = "Standard Deviation")
+```
+
+**Interpretation:** Students study an average of 22.2 hours per week and achieve an average final score of 74.2 marks. Attendance is generally high, indicating good class participation among students.
+
+---
+
+## <u>Question 4:</u>Identify Students with the Highest and Lowest Final Scores
+
+```{r, comment = ""}
+highest_score <- student_data[which.max(student_data$Final_Score), ]
+
+lowest_score <- student_data[which.min(student_data$Final_Score), ]
+
+extreme_students <- rbind(highest_score, lowest_score)
+rownames(extreme_students) <- c("Highest Score", "Lowest Score")
+
+knitr::kable(extreme_students)
+```
+
+**Interpretation:** The highest-scoring student achieved 95 marks, while the lowest-scoring student obtained 52 marks.
+
+---
+
+
+## <u>Question 5:</u> Identify Students with the Highest and Lowest Final Scores
+
+```{r, comment = ""}
+avg_study  <- round(mean(student_data[, 2]), 2)
+avg_attend <- round(mean(student_data[, 3]), 2)
+avg_score  <- round(mean(student_data[, 7]), 2)
+
+average_table <- data.frame(
+  Variable = c("Study Hours", "Attendance", "Final Score"),
+  Average = c(avg_study, avg_attend, avg_score)
+)
+
+knitr::kable(average_table)
+```
+
+**Interpretation:** Students study an average of 22.2 hours per week, maintain 87.38% attendance, and achieve an average final score of 74.2 marks.
+
+---
+
+## <u>Question 6:</u> Histogram for Final Score
+
+```{r, comment = ""}
+hist(student_data[, 7], 
+     main = "Histogram of Final Scores", 
+     xlab = "Final Score (%)", 
+     ylab = "Number of Students", 
+     col = "lightblue", 
+     border = "black")
+```
+
+**Interpretation:** The histogram indicates that most students obtained scores around the average range, with fewer students having very low or very high scores.
+
+---
+
+## <u>Question 7:</u> Boxplot Analysis of Study Hours
+
+```{r, comment = ""}
+boxplot(student_data[, 2], 
+        main = "Boxplot of Study Hours", 
+        ylab = "Weekly Study Hours", 
+        col = "lightgreen", 
+        border = "darkgreen")
+```
+
+**Interpretation:** The boxplot shows a clean distribution with no isolated dots, indicating that there are no outliers in Study Hours.
+
+---
+
+## <u>Question 8:</u>  Comparison of Final Scores for the First 10 Students
+
+```{r, comment = ""}
+first_10_students <- student_data[1:10, ]
+
+barplot(first_10_students[, 7], 
+        names.arg = first_10_students[, 1], 
+        main = "Final Scores of First 10 Students", 
+        xlab = "Student ID", 
+        ylab = "Final Score (%)", 
+        col = "lightcoral", 
+        border = "black")
+```
+
+**Interpretation:** The bar chart compares the final scores of the first 10 students, showing individual variations in their academic performance.
+
+---
+
+## <u>Question 9:</u> Scatter Plot of Study Hours vs Final Score
+
+```{r, comment = ""}
+plot(student_data[, 2], student_data[, 7],
+     main = "Scatter Plot of Study Hours vs Final Score",
+     xlab = "Weekly Study Hours",
+     ylab = "Final Score (%)",
+     col = "blue",
+     pch = 19)
+
+abline(lm(student_data[, 7] ~ student_data[, 2]), col = "red", lwd = 2)
+```
+
+**Interpretation:** The scatter plot shows a strong positive relationship, meaning that as weekly study hours increase, the final scores of the students also increase.
+
+---
+
+## <u>Question 10:</u> Correlation Heatmap for Numerical Variables
+
+```{r, fig.height=6, fig.width=6, comment = ""}
+num_cols <- student_data[, 2:7]
+
+corr_matrix <- cor(num_cols)
+
+heatmap(corr_matrix, 
+        Rowv = NA, Colv = NA, 
+        main = "Correlation Heatmap", 
+        col = heat.colors(100),
+        cexCol = 0.8,
+        cexRow = 0.8,
+        margins = c(10, 10))
+```
+
+**Interpretation:** :  The heatmap indicates positive relationships among several academic variables. Study Hours, Attendance, and Previous GPA show strong positive associations with Final Score.
+
+---
+
+## <u>Question 11:</u> Simple Linear Regression Model
+
+```{r, comment = ""}
+simple_model <- lm(student_data[, 7] ~ student_data[, 2])
+
+intercept <- round(coef(simple_model)[1], 2)
+slope     <- round(coef(simple_model)[2], 2)
+
+r_squared <- round(summary(simple_model)$r.squared, 4)
+
+regression_results <- data.frame(
+  Metric = c("Intercept (β₀)", "Slope (β₁)", "R2"),
+  Value = c(intercept, slope, r_squared)
+)
+
+knitr::kable(regression_results)
+```
+**Predicted Final Score =** 43.92 + 1.36(Study Hours)
+**Interpretation:** •  For every additional study hour, the final score increases by approximately 1.36 marks. 
+•  The model explains approximately 99.26% of the variation in final scores.
+
+
+---
+
+## <u>Question 12:<u/> Multiple Linear Regression Model
+
+```{r, comment = ""}
+multiple_model <- lm(student_data[, 7] ~ student_data[, 2] + student_data[, 3] + student_data[, 6])
+
+b0 <- round(coef(multiple_model)[1], 2)
+b1 <- round(coef(multiple_model)[2], 2)
+b2 <- round(coef(multiple_model)[3], 2)
+b3 <- round(coef(multiple_model)[4], 2)
+
+r_sq_multi <- round(summary(multiple_model)$r.squared, 4)
+
+multi_results <- data.frame(
+  Coefficient = c("Intercept (β0)", "Study Hours (β₁)", "Attendance (β2)", "Previous GPA (β3)", "R2"),
+  Value = c(b0, b1, b2, b3, r_sq_multi)
+)
+
+knitr::kable(multi_results)
+```
+
+**Predicted Final Score =** 27.37 + 0.77(Study Hours) + 0.08(Attendance) + 7.37(Previous GPA)
+**Interpretation:** •  An increase of one study hour increases the final score by approximately 0.77 marks. 
+•  A 1% increase in attendance increases the final score by approximately 0.08 marks. 
+•  A one-point increase in GPA increases the final score by approximately 7.37 marks. 
+•  The model explains approximately 99.55% of the variation in final scores.
